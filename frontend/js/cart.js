@@ -1,38 +1,65 @@
 var products = JSON.parse(localStorage.getItem("products"))
-const section = document.getElementById("cart__items");
-update()
-function update(){
-    for(const product of products){
+const items = document.getElementById("cart__items");
+
+// S'il y a bien quelques chose dans le localStorage :
+if (products && products.length != 0) {
+    // mettre les produits en ordres
+    const productsListOrdered = products.sort((a, b) => {
+        if (a.nameItem < b.nameItem) {return -1;}
+        if (a.nameItem > b.nameItem) {return 1};
+        return 0;
+    });
+    for(const product of productsListOrdered){
+        // creation et imbrication de l'article
         const articleChilds = `
             <div class="cart__item__img">
                 <img src="${product.imageUrlItem}" alt="Photographie de ${product.nameItem}">
             </div>
             <div class="cart__item__content">
                 <div class="cart__item__content__description">
-                <h2>${product.nameItem}</h2>
-                <p>${product.colorItem}</p>
-                <p>${product.priceItem} €</p>
+                    <h2>${product.nameItem}</h2>
+                    <p>${product.colorItem}</p>
+                    <p>${product.priceItem} €</p>
                 </div>
                 <div class="cart__item__content__settings">
-                <div class="cart__item__content__settings__quantity">
-                    <p>Qté :</p>
-                    <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${product.qtity}">
-                </div>
-                <div class="cart__item__content__settings__delete">
-                    <p class="deleteItem">Supprimer</p>
-                </div>
+                    <div class="cart__item__content__settings__quantity">
+                        <p>Qté :</p>
+                        <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${product.qtity}">
+                    </div>
+                    <div class="cart__item__content__settings__delete">
+                        <p class="deleteItem">Supprimer</p>
+                    </div>
                 </div>
             </div>
         `
         const article = document.createElement("article");
         article.className = "cart__item";
         article.dataset.idSpec = product.idSpec;
+        article.innerHTML = articleChilds;
+        items.appendChild(article);
 
-        article.innerHTML = articleChilds
-        
-        section.appendChild(article)
-        total()
+        total();
     }
+}
+// Si le localStorage est vide :
+else {
+    // creation de message
+    const 
+        message = document.createElement("p"),
+        cartPrice = document.querySelector('.cart__price'),
+        cartOrder = document.querySelector('.cart__order');
+
+    message.innerText = "Votre panier est vide pour le moment";
+    message.style = `
+        text-align: center;
+        margin-bottom: 50px;
+    `;
+    //imbrication de message dans la section cart__items
+    items.appendChild(message);
+
+    //supprissions des blocs .cart__price et .cart__order
+    cartPrice.remove();
+    cartOrder.remove();
 }
 
 const inputsQtity = document.querySelectorAll(".itemQuantity");
@@ -40,6 +67,7 @@ inputsQtity.forEach((inputQtity) => {
     inputQtity.addEventListener('change', (e) => {
         newQtity = e.target.value
         const idSpec = e.target.closest("article").dataset.idSpec
+        console.log(idSpec)
         productIndex = products.findIndex( item => item.idSpec == idSpec )
         if(newQtity != products[productIndex].qtity && (0 <= newQtity && newQtity <= 100 )){
             products[productIndex].qtity = newQtity
@@ -48,7 +76,14 @@ inputsQtity.forEach((inputQtity) => {
         }
     })
 })
-
+/**
+ * Renvoie l'id du produit stocké dans les data de l'article parent de l'input qui a été modifié
+ * @param { Object } e 
+ * @returns
+ */
+    function getId (e) {
+    return e.target.closest("article").dataset.id;
+}
 function total() {
     var totalQuantity = 0
     var totalPrice = 0
