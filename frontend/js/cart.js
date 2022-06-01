@@ -34,7 +34,8 @@ if (products && products.length != 0) {
         `
         const article = document.createElement("article");
         article.className = "cart__item";
-        article.dataset.idSpec = product.idSpec;
+        article.dataset.id = product.idItem;
+        article.dataset.color = product.colorItem;
         article.innerHTML = articleChilds;
         items.appendChild(article);
 
@@ -57,33 +58,32 @@ else {
     //imbrication de message dans la section cart__items
     items.appendChild(message);
 
-    //supprissions des blocs .cart__price et .cart__order
-    cartPrice.remove();
-    cartOrder.remove();
+    //ne pas afficher les blocs .cart__price et .cart__order
+    cartOrder.style.display='none';
 }
 
 const inputsQtity = document.querySelectorAll(".itemQuantity");
 inputsQtity.forEach((inputQtity) => {
     inputQtity.addEventListener('change', (e) => {
-        newQtity = e.target.value
-        const idSpec = e.target.closest("article").dataset.idSpec
-        console.log(idSpec)
-        productIndex = products.findIndex( item => item.idSpec == idSpec )
-        if(newQtity != products[productIndex].qtity && (0 <= newQtity && newQtity <= 100 )){
+        const 
+            newQtity = e.target.value,
+            {id, color} = e.target.closest("article").dataset,
+            idSpec = id+color,
+            productIndex = products.findIndex( item => item.idSpec == idSpec );
+        
+        // si la quantité de produit change et dans les normes alors ça met à jour les changement
+        if(newQtity != products[productIndex].qtity && (0 < newQtity && newQtity <= 100 )){
             products[productIndex].qtity = newQtity
             localStorage.setItem("products", JSON.stringify(products));
             total()
         }
+        // si non on supprime l'article
+        else {
+            deleteElement(productIndex)
+        }
     })
 })
-/**
- * Renvoie l'id du produit stocké dans les data de l'article parent de l'input qui a été modifié
- * @param { Object } e 
- * @returns
- */
-    function getId (e) {
-    return e.target.closest("article").dataset.id;
-}
+
 function total() {
     var totalQuantity = 0
     var totalPrice = 0
@@ -100,18 +100,27 @@ function total() {
 // deleteItem || Supprimer l'article en cliquant sur supprimer
 const item = document.querySelectorAll(".deleteItem")
 item.forEach((item) => {
-    item.addEventListener('click', (e) => {
-        const idSpec = e.target.closest("article").dataset.idSpec
-        productIndex = products.findIndex( item => item.idSpec == idSpec )
-        const product = products[productIndex]
+    item.addEventListener('click', e => {
+         
+        const 
+            {id, color} = e.target.closest("article").dataset,
+            idSpec = id+color,
+            productIndex = products.findIndex( item => item.idSpec == idSpec ),
+            product = products[productIndex];
+        
+        // si confirme alors ça supprime l'article
         if(confirm(`Vous êtes sur le point de suprimer cette article : ${product.nameItem+"  "+product.colorItem}`)){
-            products.splice(productIndex, 1)
-            localStorage.setItem("products", JSON.stringify(products))
-            window.location.reload()
+            deleteElement(productIndex);
         }
     })
-
 })
+
+function deleteElement(index) {
+    products.splice(index, 1)
+    localStorage.setItem("products", JSON.stringify(products))
+    window.location.reload()
+}
+
 
 
 
@@ -145,18 +154,40 @@ function isValid(field, value, errorMsg, msgVoid, msg){
 }
 
 // verification prénom
-firstName.addEventListener("change", () => {
-    const value = firstName.value
-    const errorMsg = document.getElementById("firstNameErrorMsg")
-    isValid("firstName", value, errorMsg, "Veuillez saisir votre prénom !", "Veuillez saisir un prénom correct !")
+firstName.addEventListener("change", (e) => {
+    const field = 'name',
+    errorMsg = document.getElementById("firstNameErrorMsg"),
+    message = "Veuillez saisir votre prénom !";
+    cPName = verifNames({e, name, errorMsg, message});
 })
 
 // verification nom
-lastName.addEventListener("change", () => {
-    const value = lastName.value
-    const errorMsg = document.getElementById("lastNameErrorMsg")
-    isValid("lastNamme", value, errorMsg, "Veuillez saisir votre nom !", "Veuillez saisir un nom correct !")
+lastName.addEventListener("change", (e) => {
+    const field = 'name',
+    errorMsg = document.getElementById("firstNameErrorMsg"),
+    message = "Veuillez saisir votre nom !";
+    cName = verifNames({e, name, errorMsg, message});
 })
+
+
+
+function verifNames({e, field, errorMsg, message}) {
+    const test = () => {
+        if(field == 'name') {
+            /^[^@&"()!_$*€£`+=\/;?#\d]+$/.test(e.target.value)
+        }
+    };
+    if (test) {
+        e.target.style.border = "0";
+        errorMsg.innerText = "";
+        return 0;
+    } else {
+        e.target.style.border = "2px solid red"
+        errorMsg.innerText = message;
+        return 1;
+    }
+}
+
 
 // verification adresse
 address.addEventListener("change", () => {
@@ -180,13 +211,22 @@ email.addEventListener("change", () => {
 })
 
 
-
 // order
 var formOrder = {}
-const orderButton = document.getElementById("order")
+const 
+    orderButton = document.getElementById("order"),
+    form = document.querySelector('.cart__order__form');
+
 orderButton.addEventListener('click', ()=>{
+
     if(firstName.value == "" || lastName.value == "" || address.value == "" || city.value == "" || email.value == ""){
-        alert("Veuillez remplir tous les champs")
+        for (let i = 0; i < form.length-1; i++) {
+            const e = form[i];
+            if(e.value == '') {
+                e.style.border = "2px solid red";
+            }
+        }
+        //alert("Veuillez remplir tous les champs")
     }else{
         formOrder = {
             firstName: firstName.value,
@@ -196,7 +236,6 @@ orderButton.addEventListener('click', ()=>{
             email: email.value
         }
         requestOrder()
-
     }
     
 })
