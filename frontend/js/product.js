@@ -35,7 +35,7 @@ fetch(`http://localhost:3000/api/products/${id}`)
  * @param { String } description 
  * @param { Array } colors 
  * @param { String } altTxt 
- * 
+ *
  */
 function createItem () {
     // titre de la page
