@@ -1,18 +1,16 @@
-const URL_API = "http://localhost:3000/api";
-
-request();
 /*
- * #script.js / function request()
  * Envoie une requet ver le serveur et puis crée les articles avec la reponse .
  */
-function request() {
-    fetch(URL_API+'/products')
-    .then(response  => response.json().then((data) => {
+fetch('http://localhost:3000/api/products')
+    .then(response  => response.json()
+    .then(data => {
+        // test n°1 | console.log(data);
         for (const item of data) {
             createItem(item.name, item.imageUrl, item._id, item.colors, item.description, item.altTxt)
         }
-    })).catch((err) => arror());
-}
+    }))
+    .catch(err => error());
+
 
 /**
  * Crée une vignette pour chaque item avec les informations recupée du coté de l'api
@@ -42,7 +40,6 @@ function createItem(name, image, id, description, altTxt) {
     items.appendChild(a);
 }
 /**
- * error()
  * affiche un message si l'api renvoie une erreur
  */
 function error() {
