@@ -1,8 +1,14 @@
-var name, price, imageUrl, description, colors, altTxt;
+var data = {};
+
+
+article = document.querySelector("article");
+selectColors = document.getElementById("colors");
+
+// disafficher l'article
+article.style.display = 'none';
 
 // récupération de l' ID du produit dans l'url
-const id = new URLSearchParams(window.location.search).get('id'),
-      selectColors = document.getElementById("colors");
+const id = new URLSearchParams(window.location.search).get('id');
 // test n°4 | console.log(id);
 
 
@@ -12,18 +18,15 @@ const id = new URLSearchParams(window.location.search).get('id'),
  */
 fetch(`http://localhost:3000/api/products/${id}`)
     .then(response => response.json())
-    .then(data => {
-        // test n°5 | console.log(data);
-        name = data.name;
-        price = data.price;
-        imageUrl = data.imageUrl;
-        description = data.description;
-        colors = data.colors;
-        altTxt = data.altTxt;
-        createItem(data);
+    .then(newData => {
+        // test n°5 | console.log(newData);
+        data = newData;
+
+        // afficher puis création de l'article
+        article.style.display = 'flex';
+        createItem();
     })
     .catch(err => error());
-
 
 /**
  * parms des valeur recupérer par l'API
@@ -38,9 +41,11 @@ fetch(`http://localhost:3000/api/products/${id}`)
  *
  */
 function createItem () {
+    const { name, price, imageUrl, description, colors, altTxt } = data;
+
     // titre de la page
     document.title = name
-
+    
     // creation de l'ensemble des élement de l'article
     document.querySelector(".item__img").innerHTML = `<img src="${imageUrl}" alt="${altTxt}">`
     document.getElementById("title").innerText = name
@@ -48,11 +53,6 @@ function createItem () {
     document.getElementById("price").innerText = price
     for (const color of colors) {
         selectColors.innerHTML += `<option value="${color}">${color}</option>`;
-
-        /*const option = document.createElement("option")
-        option.setAttribute("value", color)
-        option.innerText = color
-        selectColors.appendChild(option)*/
     }
 }
 
@@ -70,7 +70,7 @@ addToCart.addEventListener('click', () => {
         alert("Merci de choisir un numbre d'article compris entre 1 et 100")
     }
     // vérification du couleur
-    else if(colors.indexOf(selectColors.value) == -1){
+    else if(data.colors.indexOf(selectColors.value) == -1){
         alert("Cette couleur ne coresspond pas")
     } else {
         const newIdSpec = id + selectColors.value,
@@ -129,8 +129,7 @@ addToCart.addEventListener('click', () => {
  * En cas d'échec de la requète, remplace l'article par un message d'erreur
  */
 function error() {
-    const item = document.querySelector(".item"),
-          article = document.querySelector("article");
+    const item = document.querySelector(".item");
 
     // supprimer l'article dans section '.item'
     item.removeChild(article);
@@ -144,5 +143,5 @@ function error() {
     `;
 
     // Imbrication du message dans la section
-    item.appendChild(message);
+    item.innerHTML = message;
 }
