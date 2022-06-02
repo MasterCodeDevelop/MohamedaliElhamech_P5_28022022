@@ -47,6 +47,8 @@ function createItem () {
     document.getElementById("description").innerText = description
     document.getElementById("price").innerText = price
     for (const color of colors) {
+        selectColors.innerHTML += `<option value="${color}">${color}</option>`;
+
         /*const option = document.createElement("option")
         option.setAttribute("value", color)
         option.innerText = color
