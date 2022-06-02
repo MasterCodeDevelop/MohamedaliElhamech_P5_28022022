@@ -1,8 +1,10 @@
 var data = {};
 
-
-article = document.querySelector("article");
-selectColors = document.getElementById("colors");
+const 
+    article = document.querySelector("article"),
+    selectColors = document.getElementById("colors"),
+    quantity = document.getElementById('quantity'),
+    itemQuantity = document.getElementById("quantity").value;
 
 // disafficher l'article
 article.style.display = 'none';
@@ -28,18 +30,7 @@ fetch(`http://localhost:3000/api/products/${id}`)
     })
     .catch(err => error());
 
-/**
- * parms des valeur recupérer par l'API
- * 
- * 
- * @param { String } name 
- * @param { Number } price 
- * @param { String } imageUrl 
- * @param { String } description 
- * @param { Array } colors 
- * @param { String } altTxt 
- *
- */
+
 function createItem () {
     const { name, price, imageUrl, description, colors, altTxt } = data;
 
@@ -58,72 +49,72 @@ function createItem () {
 
 const addToCart = document.getElementById("addToCart");
 addToCart.addEventListener('click', () => {
-    const color = document.getElementById("colors").value,
-          itemQuantity = document.getElementById("quantity").value
-
+    const colorItem = selectColors.value,
+    qtity = quantity.value;
     // vérification si tous les champs sont bien remplis
-    if ( color == '' || itemQuantity == 0 ) {
+    // vérification si tous les champs sont bien remplis
+    if ( colorItem == '' || qtity == 0 ) {
         alert("Merci de remplir tous les champs")
     }
     // vérification de la quantité de produit
-    else if( itemQuantity < 1  || itemQuantity > 100  ) {
+    else if( qtity < 1  || qtity > 100  ) {
         alert("Merci de choisir un numbre d'article compris entre 1 et 100")
     }
     // vérification du couleur
-    else if(data.colors.indexOf(selectColors.value) == -1){
+    else if(data.colors.indexOf(colorItem) == -1){
         alert("Cette couleur ne coresspond pas")
     } else {
-        const newIdSpec = id + selectColors.value,
-        product = {
-            idItem: id,
-            colorItem: selectColors.value,
-            qtity: itemQuantity
-        };
-        // test n°8 | console.log(product);
+        // ajoute l'article dans le localStorage
+        setLocalStorage();
 
-        let localStorageProducts = JSON.parse(localStorage.getItem("products"));
-        //test n°8 | console.log(localStorageProducts)
-        // si array products est dans le localStorage
-        if (localStorageProducts){
-            const productIndex = localStorageProducts.findIndex( item => item.idItem+item.colorItem == newIdSpec )
-            // si item existe déja dans le localStorage
-            if(productIndex != -1){
-                const newQtity =  Number(localStorageProducts[productIndex].qtity ) + Number(itemQuantity) 
-
-                // ne pas dépasser la quantité maximal
-                if(newQtity <= 100){
-                    product.qtity =  newQtity
-                }else{
-                    product.qtity =  100
-                }
-                
-                localStorageProducts.splice(productIndex, 1, product);
-            }else{
-                localStorageProducts.push(product);
-            }
-        } else {
-            // si non crée array product et ajouter dans le localStorage
-            localStorageProducts = []
-            localStorageProducts.push(product);
-        }
-        // ajoute l'array localStorageProducts dans localStorage
-        localStorage.setItem("products", JSON.stringify(localStorageProducts));
-        
         // alert succées
-        if(itemQuantity>1){
+        if(qtity > 1){
             alert('Vos produits sont dans votre panier')
         }else{
             alert('Votre produit est dans votre panier')
         }
-
+        
         // remettre tous les selector par default
-        const option = document.getElementById('colors'),
-        quantity = document.getElementById('quantity');
-        option.selectedIndex = 0;
+        selectColors.selectedIndex = 0;
         quantity.value = '0';
     }
 })
 
+function setLocalStorage() {
+    const newIdSpec = id + selectColors.value,
+    product = {
+        idItem: id,
+        colorItem: selectColors.value,
+        qtity: quantity.value
+    };
+
+    let localStorageProducts = JSON.parse(localStorage.getItem("products"));
+    //test n°8 | console.log(localStorageProducts)
+
+    // si array products est dans le localStorage
+    if (localStorageProducts){
+        const productIndex = localStorageProducts.findIndex( item => item.idItem+item.colorItem == newIdSpec )
+        // si item existe déja dans le localStorage
+        if(productIndex != -1){
+            const newQtity =  Number(localStorageProducts[productIndex].qtity ) + Number(quantity.value) 
+
+            // ne pas dépasser la quantité maximal
+            if(newQtity <= 100){
+                product.qtity =  newQtity
+            }else{
+                product.qtity =  100
+            }
+            localStorageProducts.splice(productIndex, 1, product);
+        }else{
+            localStorageProducts.push(product);
+        }
+    } else {
+        // si non crée array product et ajouter à localStorageProducts
+        localStorageProducts = [product]
+    }
+    // ajoute l'array localStorageProducts dans localStorage
+    localStorage.setItem("products", JSON.stringify(localStorageProducts));
+}
 
 /**
  * En cas d'échec de la requète, remplace l'article par un message d'erreur
