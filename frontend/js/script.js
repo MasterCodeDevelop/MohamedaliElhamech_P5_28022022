@@ -11,7 +11,6 @@ fetch('http://localhost:3000/api/products')
     }))
     .catch(err => error());
 
-
 /**
  * Crée une vignette pour chaque item avec les informations recupée du coté de l'api
  * @param { String } name 
@@ -23,30 +22,24 @@ fetch('http://localhost:3000/api/products')
 function createItem(name, image, id, description, altTxt) {
     // création de l'article
     const article = `
-        <article>
-            <img src="${image}" alt="${altTxt}">
-            <h3 class="productName">${name}</h3>
-            <p class="productDescription">${description}</p>
-        </article>
+        <a href="./product.html?id=${id}">
+            <article>
+                <img src="${image}" alt="${altTxt}">
+                <h3 class="productName">${name}</h3>
+                <p class="productDescription">${description}</p>
+            </article>
+        </a>
     `;
     
-    // Ajoute de l'article à l'élément de type lien
-    const a = document.createElement("a");
-    a.setAttribute("href", `./product.html?id=${id}`);
-    a.innerHTML = article;
-
-    //Imbrication des liens dans items
+    //Imbrication des article dans items
     const items = document.getElementById("items");
-    items.appendChild(a);
+    items.innerHTML += article;
 }
 /**
  * affiche un message si l'api renvoie une erreur
  */
 function error() {
-    // création de l'article
-    const article = document.createElement("article");
-    
-    // création du message de l'article
+    // création du message 
     const message = `
         <p class="productDescription" style="padding-bottom: 25px" >
             Aucun article disponible.<br>
@@ -54,10 +47,7 @@ function error() {
         </p>
     `;
 
-    // Ajouete le message dans l'article
-    article.innerHTML = message;
-
     // Imbrication de l'article dans items
     const items = document.getElementById("items");
-    items.appendChild(article);
+    items.innerHTML = message;
 }
