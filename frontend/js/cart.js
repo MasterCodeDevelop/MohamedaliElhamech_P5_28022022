@@ -1,15 +1,22 @@
-var products = JSON.parse(localStorage.getItem("products"))
+var localStorageProducts = JSON.parse(localStorage.getItem("products"));
+products = [];
 const items = document.getElementById("cart__items");
 
 // S'il y a bien quelques chose dans le localStorage :
-if (products && products.length != 0) {
-    // mettre les produits en ordres
-    const productsListOrdered = products.sort((a, b) => {
-        if (a.nameItem < b.nameItem) {return -1;}
-        if (a.nameItem > b.nameItem) {return 1};
-        return 0;
-    });
-    for(const product of productsListOrdered){
+if (localStorageProducts && localStorageProducts.length != 0) {
+
+    for (let i = 0; i < array.length; i++) {
+        const element = array[i];
+        
+    }
+    for (let i = 0; i < localStorageProducts.length; i++) {
+
+        // recupérer les information de l'API de chaque produit
+        addProduct();
+        const {idItem, colorItem} =localStorageProducts[i],
+        index = localStorageProducts.findIndex( item => item.idItem+item.colorItem == idItem+colorItem ),
+        product = products[index];
+
         // creation et imbrication de l'article
         const articleChilds = `
             <div class="cart__item__img">
@@ -69,12 +76,12 @@ inputsQtity.forEach((inputQtity) => {
             newQtity = e.target.value,
             {id, color} = e.target.closest("article").dataset,
             idSpec = id+color,
-            productIndex = products.findIndex( item => item.idSpec == idSpec );
+            productIndex = localStorageProducts.findIndex( item => item.idSpec == idSpec );
         
         // si la quantité de produit change et dans les normes alors ça met à jour les changement
-        if(newQtity != products[productIndex].qtity && (0 < newQtity && newQtity <= 100 )){
-            products[productIndex].qtity = newQtity
-            localStorage.setItem("products", JSON.stringify(products));
+        if(newQtity != localStorageProducts[productIndex].qtity && (0 < newQtity && newQtity <= 100 )){
+            localStorageProducts[productIndex].qtity = newQtity
+            localStorage.setItem("products", JSON.stringify(localStorageProducts));
             total()
         }
         // si non on supprime l'article
@@ -83,12 +90,14 @@ inputsQtity.forEach((inputQtity) => {
         }
     })
 })
-
+function addProduct() {
+    console.log('add')
+}
 function total() {
     var totalQuantity = 0
     var totalPrice = 0
 
-    for(const product of products){
+    for(const product of localStorageProducts){
         totalQuantity += Number(product.qtity)
         totalPrice += Number(product.qtity) * Number(product.priceItem)
     }
@@ -105,8 +114,8 @@ item.forEach((item) => {
         const 
             {id, color} = e.target.closest("article").dataset,
             idSpec = id+color,
-            productIndex = products.findIndex( item => item.idSpec == idSpec ),
-            product = products[productIndex];
+            productIndex = localStorageProducts.findIndex( item => item.idSpec == idSpec ),
+            product = localStorageProducts[productIndex];
         
         // si confirme alors ça supprime l'article
         if(confirm(`Vous êtes sur le point de suprimer cette article : ${product.nameItem+"  "+product.colorItem}`)){
@@ -116,8 +125,8 @@ item.forEach((item) => {
 })
 
 function deleteElement(index) {
-    products.splice(index, 1)
-    localStorage.setItem("products", JSON.stringify(products))
+    localStorageProducts.splice(index, 1)
+    localStorage.setItem("products", JSON.stringify(localStorageProducts))
     window.location.reload()
 }
 
@@ -239,15 +248,15 @@ orderButton.addEventListener('click', ()=>{
     }
     
 })
-const productsID = []
-for (const item of products) {
-    productsID.push(item.idItem)
+const localStorageProductsID = []
+for (const item of localStorageProducts) {
+    localStorageProductsID.push(item.idItem)
 }
 function requestOrder() {
     // Données à envoyer
     const order = {
         contact: formOrder,
-        products: productsID
+        localStorageProducts: localStorageProductsID
     };
     console.log(order)
     // En-tête de la requête
@@ -257,7 +266,7 @@ function requestOrder() {
         headers: {"Content-Type": "application/json"},
     };
 
-    fetch("http://localhost:3000/api/products/order", entete)
+    fetch("http://localhost:3000/api/localStorageProducts/order", entete)
         .then((response) => {
             // On vérifie qu'on reçoit bien un status HTTP 201 c'est à dire que la requête a réussi et qu'une ressource a été créée en conséquence
             if (response.status == 201) {

@@ -47,10 +47,10 @@ function createItem () {
     document.getElementById("description").innerText = description
     document.getElementById("price").innerText = price
     for (const color of colors) {
-        const option = document.createElement("option")
+        /*const option = document.createElement("option")
         option.setAttribute("value", color)
         option.innerText = color
-        selectColors.appendChild(option)
+        selectColors.appendChild(option)*/
     }
 }
 
@@ -73,41 +73,39 @@ addToCart.addEventListener('click', () => {
     } else {
         const newIdSpec = id + selectColors.value,
         product = {
-            altTxtItem: altTxt,
-            colorItem: selectColors.value,
             idItem: id,
-            idSpec: newIdSpec,
-            imageUrlItem: imageUrl,
-            nameItem: name,
-            priceItem: price,
+            colorItem: selectColors.value,
             qtity: itemQuantity
         };
         // test n°8 | console.log(product);
 
-        let products = JSON.parse(localStorage.getItem("products"));
-        //test n°8 | console.log(products)
+        let localStorageProducts = JSON.parse(localStorage.getItem("products"));
+        //test n°8 | console.log(localStorageProducts)
         // si array products est dans le localStorage
-        if (products){
-            const productIndex = products.findIndex( item => item.idSpec == newIdSpec )
+        if (localStorageProducts){
+            const productIndex = localStorageProducts.findIndex( item => item.idItem+item.colorItem == newIdSpec )
             // si item existe déja dans le localStorage
             if(productIndex != -1){
-                const newQtity =  Number(products[productIndex].qtity ) + Number(itemQuantity) 
+                const newQtity =  Number(localStorageProducts[productIndex].qtity ) + Number(itemQuantity) 
+
                 // ne pas dépasser la quantité maximal
                 if(newQtity <= 100){
                     product.qtity =  newQtity
                 }else{
                     product.qtity =  100
                 }
-                products.splice(productIndex, 1, product);
+                
+                localStorageProducts.splice(productIndex, 1, product);
             }else{
-                products.push(product);
+                localStorageProducts.push(product);
             }
         } else {
             // si non crée array product et ajouter dans le localStorage
-            products = []
-            products.push(product);
+            localStorageProducts = []
+            localStorageProducts.push(product);
         }
-        localStorage.setItem("products", JSON.stringify(products));
+        // ajoute l'array localStorageProducts dans localStorage
+        localStorage.setItem("products", JSON.stringify(localStorageProducts));
         
         // alert succées
         if(itemQuantity>1){
@@ -115,6 +113,12 @@ addToCart.addEventListener('click', () => {
         }else{
             alert('Votre produit est dans votre panier')
         }
+
+        // remettre tous les selector par default
+        const option = document.getElementById('colors'),
+        quantity = document.getElementById('quantity');
+        option.selectedIndex = 0;
+        quantity.value = '0';
     }
 })
 
