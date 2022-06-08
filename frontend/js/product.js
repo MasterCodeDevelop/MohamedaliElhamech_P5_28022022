@@ -21,7 +21,8 @@ const id = new URLSearchParams(window.location.search).get('id');
 fetch(`http://localhost:3000/api/products/${id}`)
     .then(response => response.json())
     .then(newData => {
-        // test n°5 | console.log(newData);
+        // test n°5 |
+        console.log(newData);
         data = newData;
 
         // afficher puis création de l'article

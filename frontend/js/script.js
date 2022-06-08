@@ -4,7 +4,7 @@
 fetch('http://localhost:3000/api/products')
     .then(response  => response.json()
     .then(data => {
-        // test n°1 | console.log(data);
+        // test n°1 |console.log(data);
         for (const item of data) {
             createItem(item)
         }
@@ -15,14 +15,14 @@ fetch('http://localhost:3000/api/products')
  * Crée un article avec des liens unique pour chaque item avec les informations recupée du coté de l'api
  * @param { String } name 
  * @param { String } imageUrl
- * @param { String } id 
+ * @param { String } _id 
  * @param { String } description 
  * @param { String } altTxt 
  */
-function createItem({name, imageUrl, id, description, altTxt}) {
+function createItem({name, imageUrl, _id, description, altTxt}) {
     // création de l'article
     const article = `
-        <a href="./product.html?id=${id}">
+        <a href="./product.html?id=${_id}">
             <article>
                 <img src="${imageUrl}" alt="${altTxt}">
                 <h3 class="productName">${name}</h3>
