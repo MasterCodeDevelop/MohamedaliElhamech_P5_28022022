@@ -6,10 +6,10 @@ fetch('http://localhost:3000/api/products')
     .then(data => {
         // test n°1 | console.log(data);
         for (const item of data) {
-            createItem(item.name, item.imageUrl, item._id, item.colors, item.description, item.altTxt)
+            createItem(item)
         }
     }))
-    .catch(err => error());
+    .catch(err => error(err));
 
 /**
  * Crée une vignette pour chaque item avec les informations recupée du coté de l'api
@@ -19,12 +19,12 @@ fetch('http://localhost:3000/api/products')
  * @param { String } description 
  * @param { String } altTxt 
  */
-function createItem(name, image, id, description, altTxt) {
+function createItem({name, imageUrl, id, description, altTxt}) {
     // création de l'article
     const article = `
         <a href="./product.html?id=${id}">
             <article>
-                <img src="${image}" alt="${altTxt}">
+                <img src="${imageUrl}" alt="${altTxt}">
                 <h3 class="productName">${name}</h3>
                 <p class="productDescription">${description}</p>
             </article>
@@ -38,7 +38,8 @@ function createItem(name, image, id, description, altTxt) {
 /**
  * affiche un message si l'api renvoie une erreur
  */
-function error() {
+function error(err) {
+    // test 3 | console.log(err)
     // création du message 
     const message = `
         <p class="productDescription" style="padding-bottom: 25px" >
