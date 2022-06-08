@@ -12,9 +12,9 @@ fetch('http://localhost:3000/api/products')
     .catch(err => error(err));
 
 /**
- * Crée une vignette pour chaque item avec les informations recupée du coté de l'api
+ * Crée un article avec des liens unique pour chaque item avec les informations recupée du coté de l'api
  * @param { String } name 
- * @param { String } image
+ * @param { String } imageUrl
  * @param { String } id 
  * @param { String } description 
  * @param { String } altTxt 
@@ -35,11 +35,13 @@ function createItem({name, imageUrl, id, description, altTxt}) {
     const items = document.getElementById("items");
     items.innerHTML += article;
 }
+
 /**
  * affiche un message si l'api renvoie une erreur
  */
 function error(err) {
-    // test 3 | console.log(err)
+    // test n°3 | console.log(err)
+    
     // création du message 
     const message = `
         <p class="productDescription" style="padding-bottom: 25px" >
