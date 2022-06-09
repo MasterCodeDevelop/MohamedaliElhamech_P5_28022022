@@ -19,7 +19,7 @@ fetch('http://localhost:3000/api/products')
  * @param { String } description 
  * @param { String } altTxt 
  */
-function createItem({name, imageUrl, _id, description, altTxt}) {
+createItem = ({name, imageUrl, _id, description, altTxt}) => {
     // création de l'article
     const article = `
         <a href="./product.html?id=${_id}">
@@ -38,8 +38,10 @@ function createItem({name, imageUrl, _id, description, altTxt}) {
 
 /**
  * affiche un message si l'api renvoie une erreur
+ * 
+ * @param {any} err
  */
-function error(err) {
+error =(err) => {
     // test n°3 | console.log(err)
     
     // création du message 

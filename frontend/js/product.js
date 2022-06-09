@@ -1,16 +1,24 @@
-var data = {};
+// récupération de l' ID du produit dans l'url
+const id = new URLSearchParams(window.location.search).get('id');
+// test n°4 | console.log(id);
 
 const 
+    item = document.querySelector(".item"),
     article = document.querySelector("article"),
     selectColors = document.getElementById("colors"),
-    quantity = document.getElementById('quantity');
+    quantity = document.getElementById('quantity'),
+    addToCart = document.getElementById("addToCart");
 
 // disafficher l'article
 article.style.display = 'none';
 
-// récupération de l' ID du produit dans l'url
-const id = new URLSearchParams(window.location.search).get('id');
-// test n°4 | console.log(id);
+// création du message de la section
+const message = document.createElement("p");
+message.className ='item__message';
+message.innerHTML = "Rechargement...";
+message.style.textAlign = "center";
+message.style.color = "#fff";
+item.appendChild(message);
 
 
 /**
@@ -19,19 +27,31 @@ const id = new URLSearchParams(window.location.search).get('id');
  */
 fetch(`http://localhost:3000/api/products/${id}`)
     .then(response => response.json())
-    .then(newData => {
-        // test n°5 | console.log(newData);
-        data = newData;
+    .then(data => {
+        // test n°7 | console.log(data);
 
-        // afficher puis création de l'article
+        // mettre à jour l'article
+        updateItem(data);
+
+        // Disafficher le message puis afficher l'article
+        const message = document.querySelector('.item__message');
+        message.style.display = 'none';
         article.style.display = 'flex';
-        createItem();
     })
-    .catch(err => error());
+    .catch(err => error(err));
 
-
-function createItem () {
-    const { name, price, imageUrl, description, colors, altTxt } = data;
+/**
+ * Met à jours les donées recupéré par l'API
+ * 
+ * @param { String } name
+ * @param { Number } price
+ * @param { String } imageUrl
+ * @param { String } description
+ * @param { Object } colors
+ * @param { String } altTxt
+ * 
+ */
+updateItem = ({ name, price, imageUrl, description, colors, altTxt }) => {
 
     // titre de la page
     document.title = name
@@ -44,13 +64,13 @@ function createItem () {
     for (const color of colors) {
         selectColors.innerHTML += `<option value="${color}">${color}</option>`;
     }
+    addToCart.addEventListener('click', () => toCart(colors))
 }
 
-const addToCart = document.getElementById("addToCart");
-addToCart.addEventListener('click', () => {
+toCart = (colors) => {
     const colorItem = selectColors.value,
     qtity = quantity.value;
-    // vérification si tous les champs sont bien remplis
+
     // vérification si tous les champs sont bien remplis
     if ( colorItem == '' || qtity == 0 ) {
         alert("Merci de remplir tous les champs")
@@ -60,7 +80,7 @@ addToCart.addEventListener('click', () => {
         alert("Merci de choisir un numbre d'article compris entre 1 et 100")
     }
     // vérification du couleur
-    else if(data.colors.indexOf(colorItem) == -1){
+    else if(colors.indexOf(colorItem) == -1){
         alert("Cette couleur ne coresspond pas")
     } else {
         // ajoute l'article dans le localStorage
@@ -73,13 +93,16 @@ addToCart.addEventListener('click', () => {
             alert('Votre produit est dans votre panier')
         }
         
-        // remettre tous les selector par default
+        // remettre tous les selecteurs par default
         selectColors.selectedIndex = 0;
         quantity.value = '0';
     }
-})
+}
 
-function setLocalStorage() {
+/**
+ * Ajoute les informations choisie dans le localStorage
+ */
+setLocalStorage = () => {
     const newIdSpec = id + selectColors.value,
     product = {
         idItem: id,
@@ -118,20 +141,8 @@ function setLocalStorage() {
 /**
  * En cas d'échec de la requète, remplace l'article par un message d'erreur
  */
-function error() {
-    const item = document.querySelector(".item");
-
-    // supprimer l'article dans section '.item'
-    item.removeChild(article);
-
-    // création du message de l'article
-    const message = `
-        <p class="productDescription" style="text-align: center; color: black;" >
-            Oups !<br>
-            Quelque chose a mal tourné.
-        </p>
-    `;
-
-    // Imbrication du message dans la section
-    item.innerHTML = message;
+error = (err) => {
+    // test n°  | console.log(err)
+    const message = document.querySelector('.item__message');
+    message.innerHTML='Oups !<br> Quelque chose a mal tourné.'
 }
