@@ -313,3 +313,4 @@ function error(err) {
     cartPrice.style.display='none';
     cartOrder.style.display='none';
 }
+
