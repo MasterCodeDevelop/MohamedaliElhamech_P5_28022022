@@ -158,6 +158,24 @@ for (let i = 0; i < form.children.length-1; i++) {
 }
 
 /**
+ * Valider l'input, s'il y a une erreur l'afficher
+ * 
+ * @param {any} e 
+ */
+ validate = (e) => {
+    const { name, value, style } = e.target,
+    errorMsg = document.getElementById(name+"ErrorMsg");
+
+    if (regex(name, value)) {
+        style.border = "0";
+        errorMsg.innerText = "";
+    } else {
+        style.border = "2px solid red"
+        errorMsg.innerText = errorMessage(name);
+    }
+}
+
+/**
  * Cette fonction retourne le message d'erreur en function du nom de chaque input du formulaire
  * 
  * @param { String } name 
@@ -196,23 +214,6 @@ regex = (name, value) => {
     return pattern.test(value);
 }
 
-/**
- * Valider l'input, s'il y a une erreur l'afficher
- * 
- * @param {any} e 
- */
-validate = (e) => {
-    const { name, value, style } = e.target,
-    errorMsg = document.getElementById(name+"ErrorMsg");
-
-    if (regex(name, value)) {
-        style.border = "0";
-        errorMsg.innerText = "";
-    } else {
-        style.border = "2px solid red"
-        errorMsg.innerText = errorMessage(name);
-    }
-}
 
 // Lorsque on clique sur commander
 orderButton.addEventListener('click', () => {
