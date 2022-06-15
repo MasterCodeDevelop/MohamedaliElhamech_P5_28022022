@@ -1,7 +1,7 @@
 
 // récupération de l' ID du confirmation
 const id = new URLSearchParams(window.location.search).get('id');
-// test n°  | console.log(id)
+// test n° 1 | console.log(id)
 
 // Si l' ID du confirmation alors on se rederige directement ver la page d'acceuil
 if (id == null) {

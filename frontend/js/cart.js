@@ -1,10 +1,59 @@
 var products = [],
 localStorageProducts = JSON.parse(localStorage.getItem("products"));
-//console.log(localStorageProducts)
+// test n° 1 | console.log(localStorageProducts)
 
-const items = document.getElementById("cart__items"),
+const container = document.getElementById('limitedWidthBlock'),
+cartAndFormContainer = document.getElementById('cartAndFormContainer'),
+items = document.getElementById("cart__items"),
 orderButton = document.getElementById("order"),
-form = document.querySelector('.cart__order__form');
+form = document.querySelector('.cart__order__form'),
+cartPrice = document.querySelector('.cart__price'),
+cartOrder = document.querySelector('.cart__order'),
+loaderSVG = `
+    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="margin:auto;display:block;" width="200px" height="200px" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
+        <g transform="translate(20 50)">
+            <circle cx="0" cy="0" r="6" fill="#e15b64">
+            <animateTransform attributeName="transform" type="scale" begin="-0.375s" calcMode="spline" keySplines="0.3 0 0.7 1;0.3 0 0.7 1" values="0;1;0" keyTimes="0;0.5;1" dur="1s" repeatCount="indefinite"></animateTransform>
+            </circle>
+        </g>
+        <g transform="translate(40 50)">
+            <circle cx="0" cy="0" r="6" fill="#f8b26a">
+            <animateTransform attributeName="transform" type="scale" begin="-0.25s" calcMode="spline" keySplines="0.3 0 0.7 1;0.3 0 0.7 1" values="0;1;0" keyTimes="0;0.5;1" dur="1s" repeatCount="indefinite"></animateTransform>
+            </circle>
+        </g>
+        <g transform="translate(60 50)">
+            <circle cx="0" cy="0" r="6" fill="#abbd81">
+            <animateTransform attributeName="transform" type="scale" begin="-0.125s" calcMode="spline" keySplines="0.3 0 0.7 1;0.3 0 0.7 1" values="0;1;0" keyTimes="0;0.5;1" dur="1s" repeatCount="indefinite"></animateTransform>
+            </circle>
+        </g>
+        <g transform="translate(80 50)">
+            <circle cx="0" cy="0" r="6" fill="#81a3bd">
+            <animateTransform attributeName="transform" type="scale" begin="0s" calcMode="spline" keySplines="0.3 0 0.7 1;0.3 0 0.7 1" values="0;1;0" keyTimes="0;0.5;1" dur="1s" repeatCount="indefinite"></animateTransform>
+            </circle>
+        </g>
+    </svg>
+`;
+
+// Disafficher le bloc #cartAndFormContainer
+cartAndFormContainer.style.display = 'none';
+
+// Création du message de la section
+const message = document.createElement("div");
+message.className ='item__message';
+message.innerHTML = loaderSVG;
+message.style = `
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #fff;
+    padding-top: 90px;
+    height: 300px;
+`;
+message.style.textAlign = "center";
+message.style.color = "#fff";
+limitedWidthBlock.appendChild(message);
+
 
 /*
  * Envoie une requet ver le serveur pour récupérer les informations sur les produits .
@@ -13,7 +62,7 @@ if ( localStorageProducts && localStorageProducts.length != 0 ) {
     fetch('http://localhost:3000/api/products')
         .then(response  => response.json()
         .then(data => {
-            // console.log(data);
+            // test n° 3 | console.log(data);
             products = data;
             
             // mets en ordre le localStorage
@@ -22,14 +71,22 @@ if ( localStorageProducts && localStorageProducts.length != 0 ) {
                 if (a.nameItem > b.nameItem) {return 1};
                 return 0;
             });
-            // console.log(productsListOrdered);
+            //test n° 4 | console.log(productsListOrdered);
 
             // créer chaque article de productsListOrdered avec les informations récupérer du coté de l'API.
             for (const item of productsListOrdered) {
                 const {idItem, colorItem, qtity} = item;
                 createItem({idItem, colorItem, qtity})
             }
+            
             updateQuantityAndPrice();
+            
+            // Disafficher le message puis afficher l'article
+            const message = document.querySelector('.item__message');
+            message.style.display = 'none';
+
+            //afficher le bloc #limitedWidthBlock
+            cartAndFormContainer.style.display='block';
             
         }))
         .catch(err => error(err));
@@ -55,28 +112,29 @@ createItem = ({idItem, colorItem, qtity}) => {
 
         // créer l'article
         const article = document.createElement("article");
+        article.className = "cart__item";
+        article.dataset.id =  idItem;
+        article.dataset.color =  colorItem;
         article.innerHTML = `
-            <article class="cart__item" data-id="${idItem}" data-color="${colorItem}">
-                <div class="cart__item__img">
-                    <img src="${imageUrl}" alt="${altTxt}">
+            <div class="cart__item__img">
+                <img src="${imageUrl}" alt="${altTxt}">
+            </div>
+            <div class="cart__item__content">
+                <div class="cart__item__content__description">
+                    <h2>${name}</h2>
+                    <p>${colorItem}</p>
+                    <p>${price} €</p>
                 </div>
-                <div class="cart__item__content">
-                    <div class="cart__item__content__description">
-                        <h2>${name}</h2>
-                        <p>${colorItem}</p>
-                        <p>${price} €</p>
+                <div class="cart__item__content__settings">
+                    <div class="cart__item__content__settings__quantity">
+                        <p>Qté :</p>
+                        <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${qtity}">
                     </div>
-                    <div class="cart__item__content__settings">
-                        <div class="cart__item__content__settings__quantity">
-                            <p>Qté :</p>
-                            <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${qtity}">
-                        </div>
-                        <div class="cart__item__content__settings__delete">
-                            <p class="deleteItem">Supprimer</p>
-                        </div>
+                    <div class="cart__item__content__settings__delete">
+                        <p class="deleteItem">Supprimer</p>
                     </div>
                 </div>
-            </article>
+            </div>
         `;
 
         // si la quantité de l'article change 
@@ -116,24 +174,40 @@ updateQuantityAndPrice = () => {
     document.getElementById("totalPrice").innerHTML = totalPrice
 }
 
-    // On écoute le changement de chaque élément input
-    onChangeQtity = (e) => {
-        const newQtity = e.target.value,
-        {id, color} = e.target.closest("article").dataset,
-        idSpec = id+color,
-        productIndex = localStorageProducts.findIndex( item => item.idItem + item.colorItem == idSpec );
+function error(err) {
+    //test n°8 | console.log(err)
 
-        // si la quantité de produit change et dans les normes alors ça met à jour les changement
-        if(newQtity != localStorageProducts[productIndex].qtity && (0 < newQtity && newQtity <= 100 )){
-            localStorageProducts[productIndex].qtity = newQtity
-            localStorage.setItem("products", JSON.stringify(localStorageProducts));
-            updateQuantityAndPrice()
-        }
-        // si non on supprime l'article
-        else {
-            removeItem(e)
-        }
+    // création et imbrication de message dans la section cart__items
+    const message = document.querySelector('.item__message');
+    message.innerHTML = `
+        <p style="text-align: center; margin-bottom: 50px;" >
+            Votre panier est vide pour le moment
+        </p>
+    `;    
+}
+
+
+
+// On écoute le changement de chaque élément input
+onChangeQtity = (e) => {
+    const newQtity = e.target.value,
+    {id, color} = e.target.closest("article").dataset,
+    idSpec = id+color,
+    productIndex = localStorageProducts.findIndex( item => item.idItem + item.colorItem == idSpec ),
+    qtity = localStorageProducts[productIndex].qtity;
+
+    // si la quantité de produit change et dans les normes alors ça met à jour les changement
+    if(newQtity != qtity && (0 < newQtity && newQtity <= 100 )){
+        localStorageProducts[productIndex].qtity = newQtity
+        localStorage.setItem("products", JSON.stringify(localStorageProducts));
+        updateQuantityAndPrice()
     }
+    // si non on alert() un message d'erreur et remet la quatité de l'article à son initial
+    else {
+        e.target.value = qtity;
+        alert("Merci de choisir un numbre d'article compris entre 1 et 100");
+    }
+}
 
 /**
  * si on clique sur le boutton supprimer celà éfface l'article
@@ -146,10 +220,27 @@ removeItem = (e) => {
 
     localStorageProducts.splice(productIndex, 1)
     localStorage.setItem("products", JSON.stringify(localStorageProducts))
-    window.location.reload()
+    e.target.closest("article").remove()
+    // test n°10 | console.log(JSON.parse(localStorage.getItem("products")));
+
+    updateCart();
 }
 
+// Si un article est suprimer ça met à jour le panier
+updateCart = () => {
+    if(items.children.length == 0) {
+        error();
 
+        // Disafficher le bloc #limitedWidthBlock
+        cartAndFormContainer.style.display='none';
+
+        // Afficher  le message puis afficher l'article
+        const message = document.querySelector('.item__message');
+        message.style.display = 'flex';
+    } else {
+        updateQuantityAndPrice();
+    }
+}
 
 // Pour chaque changement input dans le formulaire validate vérifie s'il y a des erreurs
 for (let i = 0; i < form.children.length-1; i++) {
@@ -162,7 +253,7 @@ for (let i = 0; i < form.children.length-1; i++) {
  * 
  * @param {any} e 
  */
- validate = (e) => {
+validate = (e) => {
     const { name, value, style } = e.target,
     errorMsg = document.getElementById(name+"ErrorMsg");
 
@@ -241,7 +332,6 @@ orderButton.addEventListener('click', () => {
         }
         requestOrder(formOrder)
     }
-    
 })
 
 /**
@@ -260,7 +350,7 @@ requestOrder = (formOrder) => {
         contact: formOrder,
         products: localStorageProductsID
     };
-    // test n°  | console.log(order)
+    // test n° 18 | console.log(order)
 
     // En-tête de la requête
     const entete = {
@@ -293,24 +383,3 @@ requestOrder = (formOrder) => {
             }
         );
 }
-
-function error(err) {
-    //test n° | console.log(err)
-
-    // creation de message
-    const message = `
-        <p style="text-align: center; margin-bottom: 50px;" >
-            Votre panier est vide pour le moment
-        </p>
-    `
-    //imbrication de message dans la section cart__items
-    items.innerHTML += message;
-
-    //ne pas afficher les blocs .cart__price et .cart__order
-    const cartPrice = document.querySelector('.cart__price'),
-    cartOrder = document.querySelector('.cart__order');
-
-    cartPrice.style.display='none';
-    cartOrder.style.display='none';
-}
-

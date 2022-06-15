@@ -11,4 +11,4 @@ Le serveur est accessible sur `localhost` avec le port '3000' par défaut. Si le
 
 ### Back-end : Information ### 
 
-Le Back-end est fourni par OpenClassRooms. Seul le Front-end a été développé.
+Le Back-end est fourni par OpenClassRooms. Seul le javascript Front-end a été développé.
